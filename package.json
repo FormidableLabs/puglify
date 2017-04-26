@@ -2,7 +2,7 @@
   "name": "puglify",
   "version": "0.2.0",
   "description": "A multithreaded wrapper for UglifyJS.",
-  "main": "index.js",
+  "main": "lib/index.js",
   "repository": "https://github.com/FormidableLabs/puglify",
   "author": "Tyler Thompson",
   "license": "MIT",
