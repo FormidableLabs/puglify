@@ -8,6 +8,17 @@ const Threads = require('@tptee/webworker-threads');
 
 const DEFAULT_TIMEOUT = 60000; // one minute
 
+const decorateWithTimeout = timeout => cb => {
+  const timeoutInstance = setTimeout(() => {
+    cb(new Error('The minification task timed out.'), null);
+  }, timeout || DEFAULT_TIMEOUT);
+
+  return (err, result) => {
+    clearTimeout(timeoutInstance);
+    return cb(err, result);
+  };
+};
+
 class Puglifier {
   constructor(opts) {
     opts = opts || {};
@@ -18,7 +29,7 @@ class Puglifier {
 
     this.taskCallbacks = {};
     this.threadPool = Threads.createPool(opts.threadCount || os.cpus().length);
-    this.threadPool.load(path.resolve(__dirname, 'worker.js'));
+    this.threadPool.load(path.resolve(__dirname, 'worker/index.js'));
     this.threadPool.on('minify', rawResult => {
       const result = JSON.parse(rawResult);
       const taskCallback = this.taskCallbacks[result.taskId];
@@ -59,16 +70,12 @@ class Puglifier {
 
   _minify(args, cb) {
     const taskId = uuid();
-    this.taskCallbacks[taskId] = cb;
+    this.taskCallbacks[taskId] = decorateWithTimeout(this.timeout)(cb);
     this.threadPool.any.emit('minify', JSON.stringify({
       taskId,
       code: args.code,
       opts: args.opts
     }));
-
-    setTimeout(() => {
-      cb(new Error('The minification task timed out.'), null);
-    }, this.timeout || DEFAULT_TIMEOUT);
   }
 
   terminate() {

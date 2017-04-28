@@ -17,11 +17,11 @@ const commonjs = require('rollup-plugin-commonjs');
 const src = path.resolve(__dirname, '../src');
 const lib = path.resolve(__dirname, '../lib');
 const uglifyLibPath = path.resolve(lib, 'uglify.js');
-const workerSrcPath = path.resolve(src, 'worker.js');
-const workerLibPath = path.resolve(lib, 'worker.js');
+const workerSrcPath = path.resolve(src, 'worker/index.js');
+const workerLibPath = path.resolve(lib, 'worker/index.js');
 
 const isBundled = srcPath =>
-  srcPath.indexOf('src/worker.js') === -1;
+  srcPath.indexOf('src/worker/index.js') === -1;
 
 const build = () => {
   const copyUnbundledFiles = fs.emptyDir(lib)
