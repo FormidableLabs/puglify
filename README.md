@@ -12,15 +12,18 @@
 
 ```js
 const puglifier = new Puglifier({
-  // Required. Can be a string or array of strings containing code to minify.
-  code: [
-    'var pug = "lify"; function puglify() { return true; }',
-    'var two = 1 + 1; function add(a, b) { return a + b; }'
-  ]
   // Optional. Number of threads to utilize. Defaults to `os.cpus().length`.
   threadCount: os.cpus().length,
   // Optional. Timeout for each minification tasks. Defaults to one minute.
   timeout: 60000
+});
+
+puglifier.puglify({
+  // Can be a string or array of strings containing code to minify.
+  code: [
+    'var pug = "lify"; function puglify() { return true; }',
+    'var two = 1 + 1; function add(a, b) { return a + b; }'
+  ]
 })
   .then(batch => console.log(batch))
   .catch(err => console.log(err))
