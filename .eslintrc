@@ -1,8 +1,5 @@
 ---
 extends:
-  - formidable/configurations/es6-node
-
-rules:
-  quotes: ["error", "single"]
-  func-style: off
-  arrow-parens: off
+  - "formidable/configurations/es6-node-test"
+  - "prettier"
+  - "prettier/flowtype"

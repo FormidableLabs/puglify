@@ -1,44 +1,98 @@
-# puglify
+# puglify 🐶
 
-`puglify` is a multithreaded wrapper around `uglify`. It speeds up batch minification of many small modules.
+`puglify` is a multithreaded wrapper around `uglify`. It speeds up batch
+minification of many small modules.
 
 `puglify` stands for:
-- parallel uglify
-- the fact that a pug's face looks minified
 
-`puglify` uses `node-webworker-threads` under the hood. No compiler is required to build it, unless you're on an esoteric architecture.
+* parallel uglify
+* the fact that a pug's face looks minified
 
-# Usage
+## Usage
+
+Start a `Puglifier` instance:
 
 ```js
 const puglifier = new Puglifier({
   // Optional. Number of threads to utilize. Defaults to `os.cpus().length`.
-  threadCount: os.cpus().length,
-  // Optional. Timeout for each minification tasks. Defaults to one minute.
-  timeout: 60000
+  threadCount: os.cpus().length
 });
+```
 
-puglifier.puglify({
-  // Can be a string or array of strings containing code to minify.
-  code: [
-    'var pug = "lify"; function puglify() { return true; }',
-    'var two = 1 + 1; function add(a, b) { return a + b; }'
-  ]
-})
+Then, use either the Promise or Observable interfaces:
+
+```js
+// Promise interface, single code string
+puglifier
+  .minify({
+    code: 'var pug = "lify"; function puglify() { return true; }'
+  })
   .then(batch => console.log(batch))
-  .catch(err => console.log(err))
+  .catch(err => console.error(err))
   // If you're not running `puglify` frequently, feel free to
   // terminate the instance. Persisting it eliminates subsequent startup
   // times, which is useful for interactive applications.
   .then(() => puglifier.terminate());
+
+// Promise interface, multiple code strings
+puglifier
+  .minify({
+    code: {
+      // Keys don't have to be valid filenames. They're just useful
+      // for identifying which code strings get emitted from `next()`
+      // when subscribing to an observable.
+      'one.js': 'var pug = "lify"; function puglify() { return true; }',
+      'two.js': 'var two = 1 + 1; function add(a, b) { return a + b; }'
+    }
+  })
+
+// Observable interface, single code string
+puglifier
+  .minifyWithObservable({
+    code: 'var pug = "lify"; function puglify() { return true; }'
+  })
+  .subscribe({
+    next: code => {
+      console.log(code);
+    },
+    error: err => {
+      console.error(error)
+    },
+    complete: () => puglifier.terminate();
+  })
+
+// Promise interface, multiple code strings
+puglifier
+  .minifyWithObservable({
+    code: {
+      // Keys don't have to be valid filenames. They're just useful
+      // for identifying which code strings get emitted from `next()`
+      // when subscribing to an observable.
+      'one.js': 'var pug = "lify"; functwion puglify() { return true; }',
+      'two.js': 'var two = 1 + 1; function add(a, b) { return a + b; }'
+    }
+  })
 ```
 
-The result is either an object or array of objects with the minified code:
+For each code string, the result type looks like:
 
 ```js
-[{
-  code: 'function puglify(){return!0}var pug="lify";'
-}, {
- code: 'function add(n,r){return n+r}var two=2;'
-}]
+{
+  // We return Buffers so we can pass code off easily to gzip
+  code: Buffer,
+  error: string
+}
 ```
+
+Multi-string results are just an object with names as keys and code/error objects as values.
+
+## Stability
+
+`puglify` is wildly unstable! Use at your own risk until 1.0.0.
+
+## TODO
+
+* Provide prebuilt binaries for all major platforms.
+* Ensure crash safety in all V8 code.
+* Audit for memory leaks.
+* Setup CI.
