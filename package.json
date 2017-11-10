@@ -1,6 +1,6 @@
 {
   "name": "puglify",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "gypfile": true,
   "scripts": {
     "postinstall": "npm run build",
@@ -9,8 +9,7 @@
     "watch": "node scripts/build.js --watch",
     "test": "jest",
     "test-watch": "jest --watch",
-    "format":
-      "prettier --write '*.{js,json,md}' && clang-format --glob='**/*.{cpp,h}' -i"
+    "format": "prettier --write '*.{js,json,md}' && clang-format --glob='**/*.{cpp,h}' -i"
   },
   "dependencies": {
     "@most/create": "^2.0.1",
@@ -47,6 +46,9 @@
     "yargs": "^9.0.1"
   },
   "lint-staged": {
-    "*.{js,json,md}": ["format", "git add"]
+    "*.{js,json,md}": [
+      "format",
+      "git add"
+    ]
   }
 }
